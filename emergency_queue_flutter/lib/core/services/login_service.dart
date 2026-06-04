@@ -35,7 +35,7 @@ class LoginService {
     return result;
   }
 
-  // Tentativa com POST e JSON
+  // Tentativa com POST e form params (formato esperado pelo backend)
   static Future<Map<String, dynamic>> _tryPostLogin(
     String email,
     String password,
@@ -44,12 +44,9 @@ class LoginService {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'login': email, 'senha': password}),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'login=${Uri.encodeComponent(email)}&senha=${Uri.encodeComponent(password)}',
       );
-
-      print('POST JSON Response status: ${response.statusCode}');
-      print('POST JSON Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -67,10 +64,10 @@ class LoginService {
         };
       }
     } catch (e) {
-      print('POST JSON error: $e');
+      // ignorado, tenta próximo método
     }
 
-    return {'success': false, 'message': 'POST JSON falhou'};
+    return {'success': false, 'message': 'POST form falhou'};
   }
 
   // Tentativa com POST e form data
